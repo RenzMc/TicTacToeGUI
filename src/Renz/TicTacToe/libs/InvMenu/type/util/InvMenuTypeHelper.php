@@ -4,51 +4,49 @@ declare(strict_types=1);
 
 namespace Renz\TicTacToe\libs\InvMenu\type\util;
 
-use pocketmine\block\Block;
+use Generator;
 use pocketmine\block\tile\Chest;
-use pocketmine\block\tile\Tile;
-use pocketmine\inventory\Inventory;
+use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
-use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
 use pocketmine\world\World;
 
 final class InvMenuTypeHelper{
 
-	public static function createNetworkTranslatedInventory(Inventory $inventory, string $custom_name) : Inventory{
-		if($custom_name !== ""){
-			// TODO: Add a proper way to set inventory custom names
-		}
-		return $inventory;
+	public const NETWORK_WORLD_Y_MIN = -64;
+	public const NETWORK_WORLD_Y_MAX = 320;
+
+	public static function getBehindPositionOffset(Player $player) : Vector3{
+		$offset = $player->getDirectionVector();
+		$size = $player->size;
+		$offset->x *= -(1 + $size->getWidth());
+		$offset->y *= -(1 + $size->getHeight());
+		$offset->z *= -(1 + $size->getWidth());
+		return $offset;
 	}
 
-	public static function getBlockActorDataAt(Player $player, Vector3 $pos, ?string $default_custom_name = null) : ?CompoundTag{
-		$world = $player->getWorld();
-
-		$x = (int) $pos->x;
-		$y = (int) $pos->y;
-		$z = (int) $pos->z;
-
-		if(!$world->isChunkLoaded($x >> 4, $z >> 4)){
-			return null;
-		}
-
-		$tile = $world->getTileAt($x, $y, $z);
-		if($tile instanceof Chest && $default_custom_name !== null){
-			$tag = $tile->getSpawnCompound();
-			$tag->setString(Tile::TAG_CUSTOM_NAME, $default_custom_name);
-			return $tag;
-		}
-
-		return $tile !== null ? $tile->getSpawnCompound() : null;
+	public static function isValidYCoordinate(float $y) : bool{
+		return $y >= self::NETWORK_WORLD_Y_MIN && $y <= self::NETWORK_WORLD_Y_MAX;
 	}
 
-	public static function getInvFromBlockInWorld(World $world, Vector3 $pos, bool $force_create = false) : ?Inventory{
-		$tile = $world->getTileAt((int) $pos->x, (int) $pos->y, (int) $pos->z);
-		if($tile instanceof Chest){
-			return $tile->getInventory();
+	/**
+	 * @param string $tile_id
+	 * @param World $world
+	 * @param Vector3 $position
+	 * @param list<Facing::DOWN|Facing::UP|Facing::NORTH|Facing::SOUTH|Facing::WEST|Facing::EAST> $sides
+	 * @return Generator<Vector3>
+	 */
+	public static function findConnectedBlocks(string $tile_id, World $world, Vector3 $position, array $sides) : Generator{
+		if($tile_id === "Chest"){
+			// setting a single chest at the spot of a pairable chest sends the client a double chest
+			// https://github.com/Muqsit/InvMenu/issues/207
+			foreach($sides as $side){
+				$pos = $position->getSide($side);
+				$tile = $world->getTileAt($pos->x, $pos->y, $pos->z);
+				if($tile instanceof Chest && $tile->getPair() !== null){
+					yield $pos;
+				}
+			}
 		}
-
-		return null;
 	}
 }

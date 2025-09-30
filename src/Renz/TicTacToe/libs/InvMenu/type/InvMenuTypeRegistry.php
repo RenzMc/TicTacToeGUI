@@ -5,37 +5,68 @@ declare(strict_types=1);
 namespace Renz\TicTacToe\libs\InvMenu\type;
 
 use Renz\TicTacToe\libs\InvMenu\type\util\InvMenuTypeBuilders;
-use InvalidArgumentException;
+use pocketmine\block\VanillaBlocks;
+use pocketmine\network\mcpe\protocol\types\inventory\WindowTypes;
 
 final class InvMenuTypeRegistry{
 
-	/** @var InvMenuType[] */
-	private $types = [];
+	/** @var array<string, InvMenuType> */
+	private array $types = [];
 
-	/** @var InvMenuTypeBuilders */
-	private $builders;
+	/** @var array<int, string> */
+	private array $identifiers = [];
 
 	public function __construct(){
-		$this->builders = new InvMenuTypeBuilders();
+		$this->register(InvMenuTypeIds::TYPE_CHEST, InvMenuTypeBuilders::BLOCK_ACTOR_FIXED()
+			->setBlock(VanillaBlocks::CHEST())
+			->setSize(27)
+			->setBlockActorId("Chest")
+		->build());
+
+		$this->register(InvMenuTypeIds::TYPE_DOUBLE_CHEST, InvMenuTypeBuilders::DOUBLE_PAIRABLE_BLOCK_ACTOR_FIXED()
+			->setBlock(VanillaBlocks::CHEST())
+			->setSize(54)
+			->setBlockActorId("Chest")
+			->setAnimationDuration(1)
+		->build());
+
+		$this->register(InvMenuTypeIds::TYPE_HOPPER, InvMenuTypeBuilders::BLOCK_ACTOR_FIXED()
+			->setBlock(VanillaBlocks::HOPPER())
+			->setSize(5)
+			->setBlockActorId("Hopper")
+			->setNetworkWindowType(WindowTypes::HOPPER)
+		->build());
 	}
 
 	public function register(string $identifier, InvMenuType $type) : void{
 		if(isset($this->types[$identifier])){
-			throw new InvalidArgumentException("A menu type with the identifier &quot;" . $identifier . "&quot; is already registered");
+			unset($this->identifiers[spl_object_id($this->types[$identifier])], $this->types[$identifier]);
 		}
 
 		$this->types[$identifier] = $type;
+		$this->identifiers[spl_object_id($type)] = $identifier;
+	}
+
+	public function exists(string $identifier) : bool{
+		return isset($this->types[$identifier]);
 	}
 
 	public function get(string $identifier) : InvMenuType{
-		if(!isset($this->types[$identifier])){
-			throw new InvalidArgumentException("No menu type with the identifier &quot;" . $identifier . "&quot; is registered");
-		}
-
 		return $this->types[$identifier];
 	}
 
-	public function getBuilders() : InvMenuTypeBuilders{
-		return $this->builders;
+	public function getIdentifier(InvMenuType $type) : string{
+		return $this->identifiers[spl_object_id($type)];
+	}
+
+	public function getOrNull(string $identifier) : ?InvMenuType{
+		return $this->types[$identifier] ?? null;
+	}
+
+	/**
+	 * @return array<string, InvMenuType>
+	 */
+	public function getAll() : array{
+		return $this->types;
 	}
 }

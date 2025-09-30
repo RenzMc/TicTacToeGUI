@@ -4,24 +4,29 @@ declare(strict_types=1);
 
 namespace Renz\TicTacToe\libs\InvMenu\transaction;
 
+use Closure;
+use pocketmine\player\Player;
+
 final class InvMenuTransactionResult{
 
-	/** @var bool */
-	private $cancelled;
+	/** @var (Closure(Player) : void)|null */
+	public ?Closure $post_transaction_callback = null;
 
-	public function __construct(bool $cancelled){
-		$this->cancelled = $cancelled;
-	}
+	public function __construct(
+		readonly public bool $cancelled
+	){}
 
-	public function isCancelled() : bool{
-		return $this->cancelled;
-	}
-
-	public static function cancel() : self{
-		return new self(true);
-	}
-
-	public static function continue() : self{
-		return new self(false);
+	/**
+	 * Notify when we have escaped from the event stack trace and the
+	 * client's network stack trace.
+	 * Useful for sending forms and other stuff that cant be sent right
+	 * after closing inventory.
+	 *
+	 * @param (Closure(Player) : void)|null $callback
+	 * @return self
+	 */
+	public function then(?Closure $callback) : self{
+		$this->post_transaction_callback = $callback;
+		return $this;
 	}
 }

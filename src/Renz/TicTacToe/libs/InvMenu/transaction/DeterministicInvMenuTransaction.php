@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Renz\TicTacToe\libs\InvMenu\transaction;
 
+use Closure;
+use LogicException;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\inventory\transaction\InventoryTransaction;
 use pocketmine\item\Item;
@@ -11,22 +13,21 @@ use pocketmine\player\Player;
 
 final class DeterministicInvMenuTransaction implements InvMenuTransaction{
 
-	/** @var InvMenuTransaction */
-	private $inner;
-
-	/** @var InvMenuTransactionResult|null */
-	private $result = null;
-
-	public function __construct(InvMenuTransaction $transaction){
-		$this->inner = $transaction;
-	}
+	public function __construct(
+		readonly private InvMenuTransaction $inner,
+		readonly private InvMenuTransactionResult $result
+	){}
 
 	public function continue() : InvMenuTransactionResult{
-		return $this->result = InvMenuTransactionResult::continue();
+		throw new LogicException("Cannot change state of deterministic transactions");
 	}
 
 	public function discard() : InvMenuTransactionResult{
-		return $this->result = InvMenuTransactionResult::cancel();
+		throw new LogicException("Cannot change state of deterministic transactions");
+	}
+
+	public function then(?Closure $callback) : void{
+		$this->result->then($callback);
 	}
 
 	public function getPlayer() : Player{
@@ -55,15 +56,5 @@ final class DeterministicInvMenuTransaction implements InvMenuTransaction{
 
 	public function getTransaction() : InventoryTransaction{
 		return $this->inner->getTransaction();
-	}
-
-	public function then(?callable $callback) : void{
-		if($this->result === null){
-			throw new \InvalidStateException("Cannot call " . __METHOD__ . "() before attempting transaction");
-		}
-
-		if($callback !== null){
-			$callback($this->getPlayer(), $this->getOut(), $this->getIn(), $this->getAction(), $this->getTransaction());
-		}
 	}
 }

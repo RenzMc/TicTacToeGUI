@@ -10,8 +10,7 @@ use pocketmine\world\Position;
 
 final class InvMenuInventory extends SimpleInventory implements BlockInventory{
 
-	/** @var Position */
-	private $holder;
+	private Position $holder;
 
 	public function __construct(int $size){
 		parent::__construct($size);

@@ -11,19 +11,19 @@ use Renz\TicTacToe\libs\InvMenu\type\util\builder\DoublePairableBlockActorFixedI
 
 final class InvMenuTypeBuilders{
 
-	public function getActorFixedBuilder() : ActorFixedInvMenuTypeBuilder{
+	public static function ACTOR_FIXED() : ActorFixedInvMenuTypeBuilder{
 		return new ActorFixedInvMenuTypeBuilder();
 	}
 
-	public function getBlockFixedBuilder() : BlockFixedInvMenuTypeBuilder{
-		return new BlockFixedInvMenuTypeBuilder();
-	}
-
-	public function getBlockActorFixedBuilder() : BlockActorFixedInvMenuTypeBuilder{
+	public static function BLOCK_ACTOR_FIXED() : BlockActorFixedInvMenuTypeBuilder{
 		return new BlockActorFixedInvMenuTypeBuilder();
 	}
 
-	public function getDoublePairableBlockActorFixedBuilder() : DoublePairableBlockActorFixedInvMenuTypeBuilder{
+	public static function BLOCK_FIXED() : BlockFixedInvMenuTypeBuilder{
+		return new BlockFixedInvMenuTypeBuilder();
+	}
+
+	public static function DOUBLE_PAIRABLE_BLOCK_ACTOR_FIXED() : DoublePairableBlockActorFixedInvMenuTypeBuilder{
 		return new DoublePairableBlockActorFixedInvMenuTypeBuilder();
 	}
 }

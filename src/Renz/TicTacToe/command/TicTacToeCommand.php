@@ -31,7 +31,8 @@ class TicTacToeCommand extends Command {
         }
 
         if (count($args) < 1) {
-            return false;
+            $sender->sendMessage($this->plugin->getMessage("help_message"));
+             return true;
         }
 
         switch (strtolower($args[0])) {

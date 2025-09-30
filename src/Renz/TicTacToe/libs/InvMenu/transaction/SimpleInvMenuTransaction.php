@@ -11,28 +11,13 @@ use pocketmine\player\Player;
 
 final class SimpleInvMenuTransaction implements InvMenuTransaction{
 
-	/** @var Player */
-	private $player;
-
-	/** @var Item */
-	private $out;
-
-	/** @var Item */
-	private $in;
-
-	/** @var SlotChangeAction */
-	private $action;
-
-	/** @var InventoryTransaction */
-	private $transaction;
-
-	public function __construct(Player $player, Item $out, Item $in, SlotChangeAction $action, InventoryTransaction $transaction){
-		$this->player = $player;
-		$this->out = $out;
-		$this->in = $in;
-		$this->action = $action;
-		$this->transaction = $transaction;
-	}
+	public function __construct(
+		readonly private Player $player,
+		readonly private Item $out,
+		readonly private Item $in,
+		readonly private SlotChangeAction $action,
+		readonly private InventoryTransaction $transaction
+	){}
 
 	public function getPlayer() : Player{
 		return $this->player;
@@ -47,11 +32,11 @@ final class SimpleInvMenuTransaction implements InvMenuTransaction{
 	}
 
 	public function getItemClicked() : Item{
-		return $this->out;
+		return $this->getOut();
 	}
 
 	public function getItemClickedWith() : Item{
-		return $this->in;
+		return $this->getIn();
 	}
 
 	public function getAction() : SlotChangeAction{
@@ -63,10 +48,10 @@ final class SimpleInvMenuTransaction implements InvMenuTransaction{
 	}
 
 	public function continue() : InvMenuTransactionResult{
-		return InvMenuTransactionResult::continue();
+		return new InvMenuTransactionResult(false);
 	}
 
 	public function discard() : InvMenuTransactionResult{
-		return InvMenuTransactionResult::cancel();
+		return new InvMenuTransactionResult(true);
 	}
 }

@@ -4,78 +4,29 @@ declare(strict_types=1);
 
 namespace Renz\TicTacToe\libs\InvMenu\inventory;
 
-use Closure;
 use Renz\TicTacToe\libs\InvMenu\InvMenu;
 use pocketmine\inventory\Inventory;
-use pocketmine\inventory\InventoryListener;
-use pocketmine\item\Item;
-use pocketmine\player\Player;
 
-final class SharedInvMenuSynchronizer implements InventoryListener{
+final class SharedInvMenuSynchronizer{
 
-	/** @var InvMenu */
-	private $menu;
+	readonly private Inventory $inventory;
+	readonly private SharedInventorySynchronizer $synchronizer;
+	readonly private SharedInventoryNotifier $notifier;
 
-	/** @var SharedInventorySynchronizer */
-	private $synchronizer;
+	public function __construct(InvMenu $menu, Inventory $inventory){
+		$this->inventory = $inventory;
 
-	/** @var Player[] */
-	private $players = [];
+		$menu_inventory = $menu->getInventory();
+		$this->synchronizer = new SharedInventorySynchronizer($menu_inventory);
+		$inventory->getListeners()->add($this->synchronizer);
 
-	public function __construct(InvMenu $menu){
-		$this->menu = $menu;
-		$this->synchronizer = new SharedInventorySynchronizer($this);
+		$this->notifier = new SharedInventoryNotifier($this->inventory, $this->synchronizer);
+		$menu_inventory->setContents($inventory->getContents());
+		$menu_inventory->getListeners()->add($this->notifier);
 	}
 
-	public function getMenu() : InvMenu{
-		return $this->menu;
-	}
-
-	public function getInventory() : Inventory{
-		return $this->menu->getInventory();
-	}
-
-	public function getPlayers() : array{
-		return $this->players;
-	}
-
-	public function onContentChange(Inventory $inventory, array $old_contents) : void{
-		$this->synchronizer->onContentChange($inventory, $old_contents);
-	}
-
-	public function onSlotChange(Inventory $inventory, int $slot, Item $old_item) : void{
-		$this->synchronizer->onSlotChange($inventory, $slot, $old_item);
-	}
-
-	/**
-	 * @param Player $player
-	 * @param Closure|null $callback
-	 * @return bool
-	 */
-	public function sendInventory(Player $player, ?Closure $callback = null) : bool{
-		$player_id = $player->getId();
-		if(isset($this->players[$player_id])){
-			return false;
-		}
-
-		$this->players[$player_id] = $player;
-		$this->menu->getInventory()->getListeners()->add($this);
-		$this->menu->send($player, null, $callback);
-		return true;
-	}
-
-	public function remove(Player $player) : bool{
-		$player_id = $player->getId();
-		if(!isset($this->players[$player_id])){
-			return false;
-		}
-
-		$inventory = $this->menu->getInventory();
-		$inventory->getListeners()->remove($this);
-		unset($this->players[$player_id]);
-		if(count($this->players) > 0){
-			$inventory->getListeners()->add($this);
-		}
-		return true;
+	public function destroy() : void{
+		$this->synchronizer->getSynchronizingInventory()->getListeners()->remove($this->notifier);
+		$this->inventory->getListeners()->remove($this->synchronizer);
 	}
 }
