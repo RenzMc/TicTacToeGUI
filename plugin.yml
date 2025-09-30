@@ -1,0 +1,15 @@
+name: TicTacToe
+api: 5.0.0
+main: Renz\TicTacToe\Main
+version: 1.1.0
+author: Renz
+description: A configurable TicTacToe game plugin for PocketMine-MP
+
+softdepend:
+  - EconomyAPI
+  - BedrockEconomy
+
+permissions:
+  tictactoe.cmd:
+    default: true
+    description: Allows players to use the TicTacToe command

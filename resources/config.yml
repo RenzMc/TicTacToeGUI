@@ -1,0 +1,80 @@
+# TicTacToe Configuration
+
+# Economy settings
+economy:
+  # Type of economy to use (EconomyAPI, BedrockEconomy, or none)
+  type: "auto" # auto will use any available economy plugin
+  # Reward amount for winning a game
+  reward: 1000
+
+# Game settings
+game:
+  # Bot difficulty levels (easy, medium, hard)
+  default_bot_difficulty: "easy"
+  # Whether to broadcast when a player is waiting for an opponent
+  broadcast_waiting: true
+
+# GUI settings
+gui:
+  # Title of the game menu
+  title: "TicTacToe"
+  # Colors for X and O markers
+  x_color: "RED"
+  o_color: "WHITE"
+  # Colors for empty cells and border
+  empty_cell_color: "WHITE"
+  border_color: "BLACK"
+
+# Messages
+messages:
+  # Prefix for all messages
+  prefix: "&7[&aTicTacToe&7] "
+  
+  # Game messages
+  game_start_x: "&2Game started! You are X. It's your turn."
+  game_start_o: "&2Game started! You are O. Waiting for the other player's move."
+  game_start_bot: "&2You are playing against the Bot."
+  invalid_move: "&cInvalid move!"
+  win_with_money: "&2Congratulations! You won the game and received &a{money} &2money!"
+  win_without_money: "&2Congratulations! You won the game!"
+  lose_game: "&cYou lost the game."
+  draw_game: "&eThe game ended in a draw."
+  game_end: "&7Use /tictactoe start to start a new game."
+  forfeit_self: "&cYou have forfeited the game."
+  forfeit_opponent: "&a{player} has forfeited the game. You win!"
+  reward_message: "&2You received &a{money} &2money as a reward!"
+  
+  # Command messages
+  already_waiting: "&eYou are already waiting for a player to join."
+  waiting_for_player: "&aYou have started a TicTacToe game. Waiting for a player to join..."
+  broadcast_waiting: "&b{player} is waiting for players to become TicTacToe opponents! Type /tictactoe join {player} to join the board"
+  bot_start: "Starting a game against the Bot ({difficulty})."
+  bot_usage: "Usage: /tictactoe bot <easy|medium|hard>"
+  already_in_game: "&cYou are already in a game."
+  already_started_game: "&cYou have already started a game. Wait for someone to join."
+  join_usage: "&eUsage: /tictactoe join <playerName>"
+  player_not_waiting: "&cThat player is not waiting for a game."
+  player_not_online: "&cThat player is not online."
+  no_waiting_players: "&cNo players are currently waiting for a game."
+  waiting_players_header: "&bPlayers waiting for a game:"
+  waiting_players_entry: "&9 - {player}"
+  not_in_game: "&cYou are not currently in a game."
+  unknown_command: "Unknown command. Usage: /tictactoe <start|join|bot|help|list|end>"
+  
+  # Help message
+  help_message: |
+    &6------ TicTacToe Help ------
+    &bHow To Play:
+      &a- Type the numbers in the chat according to the numbers on the board
+    
+    &bCommand List:
+      &a- /tictactoe start&7 » Start TicTacToe Game and wait for a player to join
+      &a- /tictactoe join <playerName>&7 » Join the TicTacToe game from the player who started the game
+      &a- /tictactoe bot <easy|medium|hard>&7 » Start a game against a bot with specified difficulty
+      &a- /tictactoe list&7 » List players waiting for a game
+      &a- /tictactoe end&7 » Exit or end the game without winning
+
+# Permissions
+permissions:
+  # Permission required to use the TicTacToe command
+  command: "tictactoe.cmd"
